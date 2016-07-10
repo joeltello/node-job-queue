@@ -83,7 +83,6 @@ class ControllerManager
         else
           @res.json(data)
       .catch (err) =>
-        console.error ">>!!", err
         @failRequest(err)
     catch err
       @failRequest(err)

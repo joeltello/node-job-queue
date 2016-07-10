@@ -1,38 +1,41 @@
 class ExternalError extends Error
-  constructor: (externalMessage, code, err) ->
-    console.log ">>>externalMessage", externalMessage
-    console.log ">>>err", err
+  constructor: (details, err, code) ->
     throw new Error("Cannot instantiate abstract class.") if @constructor is ExternalError
     @message = err?.message or err or "Internal server error"
     Error.captureStackTrace(@, arguments.callee)
-    @externalMessage = externalMessage if externalMessage
-    @statusCode = code or 500
+    @details = details if details
+    @status = code or 500
 
 class InternalServerError extends ExternalError
-  constructor: (err) ->
-    super("Internal Server Error", 500, err)
+  constructor: (details, err) ->
+    details = "Invalid Parameter" unless details
+    err = "Invalid Parameter" unless err
+    super(details, err, 500)
 
 class NotFoundError extends ExternalError
-  constructor: (err) ->
-    err = "Object not found." unless err
-    super("Not found", 404, err)
+  constructor: (details, err) ->
+    details = "Not Found" unless details
+    err = "Not Found" unless err
+    super(details, err, 404)
 
 class AccessDeniedError extends ExternalError
-  constructor: (err) ->
-    super("Access denied", 401, err)
+  constructor: (details, err) ->
+    details = "Access Denied" unless details
+    err = "Access Denied" unless err
+    super(details, err, 401)
 
 class InvalidParameterError extends ExternalError
-  constructor: (externalMessage, err) ->
-    externalMessage = "Invalid parameter" unless externalMessage
-    err = "Invalid parameter" unless err
-    super(externalMessage, 400, err)
+  constructor: (details, err) ->
+    details = "Invalid Parameter" unless details
+    err = "Invalid Parameter" unless err
+    super(details, err, 400)
 
 # Generic 400, not necessarily related to parameters
 class BadRequestError extends ExternalError
-  constructor: (externalMessage, err) ->
-    externalMessage = "Bad Request" unless externalMessage
+  constructor: (details, err) ->
+    details = "Bad Request" unless details
     err = "Bad Request" unless err
-    super(externalMessage, 400, err)
+    super(details, err, 400)
 
 module.exports =
   ExternalError: ExternalError
