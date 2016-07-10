@@ -1,0 +1,30 @@
+{
+  "author": {
+    "name": "Joel Tello",
+    "email": "joel.tello.guzman@gmail.com"
+  },
+  "name": "node-job-queue",
+  "description": "Basic Redis Queue",
+  "license": {
+    "name": "MIT License",
+    "url": "http://www.opensource.org/licenses/MIT"
+  },
+  "version": "0.0.1",
+  "repository": "git@github.com:joeltello/node-job-queue.git",
+  "readme": "README.md",
+  "dependencies": {
+    "asyncawait": "^1.0.6",
+    "body-parser": "^1.15.2",
+    "compression": "^1.6.2",
+    "connect-timeout": "^1.7.0",
+    "express": "^4.14.0",
+    "lodash": "^4.13.1",
+    "method-override": "^2.3.6",
+    "mongoose": "^4.5.3",
+    "when": "^3.7.7"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=0.10.10"
+  }
+}
