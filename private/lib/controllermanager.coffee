@@ -1,8 +1,42 @@
+_ = require("lodash")
+fs = require('fs')
+path = require("path")
+q = require("when")
 EntityController = require("../controllers/EntityController")
+guard = require("./guard")
 utils = require("./utils")
 errors = require("./errors")
 
-class RequestProcessor
+class ControllerManager
+
+  controllers = {}
+
+  initControllers = ->
+    return unless _.isEmpty(controllers)
+    controllersRoot = path.join(__dirname, "../controllers")
+    controllerNames = _.uniq _.map fs.readdirSync(controllersRoot), (f) -> f.split('.')[0]
+    for controllerName in controllerNames
+      if controllerName isnt "EntityController"
+        try
+          controllers[controllerName.toLowerCase()] = require(path.join(controllersRoot, controllerName))
+        catch err
+          console.error "ControllerManager::createController(#{controllerName}) - error:", err
+
+  # Static method to load a manager
+  createController = (controllerName) ->
+    initControllers()
+    guard.required("ControllerName", controllerName)
+    controllerName = controllerName.toLowerCase()
+    if /s$/.test controllerName # is it plural?
+      # This is a simplistic anti-pluralize method to be able to refer to /user and /users
+      # and other similar objects interchangeably
+      controllerName = controllerName.replace(/s$/, "")
+    controllerName = controllerName + "controller"
+    ControllerType = controllers[controllerName]
+    if not ControllerType
+      console.error "ControllerManager::createController(#{controllerName}) - controller not found,"
+      throw new errors.InvalidParameterError("Specified action is not supported.")
+    return new ControllerType()
 
   constructor: (req, res, type) ->
     throw new Error("Missing required parameters.") unless req and res and type
@@ -32,12 +66,12 @@ class RequestProcessor
   processRequest: (executor) ->
     controller = null
     try
-      controller = EntityController.create(@type)
+      controller = createController(@type)
     catch err
       console.error "Error creating #{@type} controller:", err.externalMessage or err.message
       return @failRequest(err)
     try
-      Q(executor(controller))
+      q(executor(controller))
       .then (data) =>
         if data?.status_code
           @res.status(data.status_code)
@@ -48,6 +82,9 @@ class RequestProcessor
           @res.send(data)
         else
           @res.json(data)
+      .catch (err) =>
+        console.error ">>!!", err
+        @failRequest(err)
     catch err
       @failRequest(err)
 
@@ -71,4 +108,4 @@ class RequestProcessor
   search: (query)->
     @action("search", query)
 
-module.exports = RequestProcessor
+module.exports = ControllerManager

@@ -1,62 +1,88 @@
-fs = require('fs')
-Q = require("when")
-_ = require("lodash")
-path = require('path')
+q = require("when")
+async = require("asyncawait/async")
+await = require("asyncawait/await")
 guard = require("../lib/guard")
 errors = require("../lib/errors")
-AbstractDao = require("../lib/AbstractDao")
+utils = require("../lib/utils")
 
-class EntityController extends AbstractDao
+class EntityController
 
-  controllers = {}
+  # Hack to get around CoffeeScript issue with 'super' https://github.com/jashkenas/coffeescript/issues/1606
+  super: (methodName, args...)->
+    @constructor.__super__[methodName].apply(@, args)
 
-  constructor: ->
+  constructor: (model) ->
     throw new errors.InvalidParameterError("Type not permitted.") if @constructor is EntityController
-    return super
+    guard.required("Model", model)
+    @model = model
 
-  @initControllers: ->
-    return unless _.isEmpty(controllers)
-    controllerNames = _.uniq _.map fs.readdirSync(__dirname), (f) -> f.split('.')[0]
-    for controllerName in controllerNames
-      if controllerName isnt "EntityController"
-        try
-          controllers[controllerName.toLowerCase()] = require(path.join(__dirname, controllerName))
-        catch err
-          console.error "Error initializing controller:", controllerName, err
+  onBeforeCreate: async (data) ->
+    entity = new @model(data)
+    await entity.validate()
+    return entity
 
-  # Static method to load a manager
-  @create: (controllerName) ->
-    @initControllers()
-    guard.required("ControllerName", controllerName)
-    controllerName = controllerName.toLowerCase()
-    if /s$/.test controllerName # is it plural?
-      # This is a simplistic anti-pluralize method to be able to refer to /job and /jobs
-      # and other similar objects interchangeably
-      controllerName = controllerName.replace(/s$/, "")
-    controllerName = controllerName + "controller"
-    ControllerType = controllers[controllerName]
-    throw new errors.NotFoundError() unless ControllerType
-    return new ControllerType()
-
-  onBeforeCreate: (data) ->
-    super(data)
-
-  onAfterCreate: -> super.then (result) =>
-    return Q.resolve(result)
-
-  onAfterSearch: -> super.then (result) =>
+  # TODO
+  onAfterCreate: async (result) ->
     return result
 
-  onAfterGet: -> super.then (result) =>
-    return Q.resolve(result)
+  create: async (data)->
+    entity = await @onBeforeCreate(data)
+    result = await entity.save()
+    return await @onAfterCreate(result)
 
-  onBeforeUpdate: (currentInstance, data) ->
-    super(currentInstance, data)
+  # TODO
+  onBeforeSearch: (query) ->
+    return @model.find().where("deleted_at").exists(no)
 
-  onAfterUpdate: -> super.then (result) =>
-    return Q.resolve(result)
+  # TODO
+  onAfterSearch: (results, query) ->
+    return q.resolve(results)
 
-  onAfterDelete: -> super.then (result) =>
-    return Q.resolve(result)
+  # TODO support query
+  search: async (query) ->
+    filteredQuery = @onBeforeSearch(query) # query
+    results = await filteredQuery.lean(no).exec()
+    return await @onAfterSearch(results, query)
+
+  onBeforeGet: (id) ->
+    return @model.findOne(_id: id, deleted_at: $exists: no)
+
+  onAfterGet: async (result) ->
+    return q.resolve(result)
+
+  get: async (id) ->
+    filteredQuery = @onBeforeGet(id)
+    instance = await filteredQuery.lean(no).exec()
+    throw new errors.NotFoundError() unless instance
+    return await @onAfterGet(instance)
+
+  onBeforeUpdate: async (currentInstance, data) ->
+    _.extend currentInstance, data
+    await currentInstance.validate()
+    return currentInstance
+
+  onAfterUpdate: async (result) ->
+    return q.resolve(result)
+
+  update: async (id, data) ->
+    currentEntity = await utils.findById(id)
+    throw new errors.NotFoundError() unless currentEntity
+    entityToSave = await @onBeforeUpdate(currentEntity, data)
+    updatedEntity = await entityToSave.save()
+    return await @onAfterUpdate(updatedEntity)
+
+  onBeforeDelete: async (currentInstance) ->
+    return q.resolve(currentInstance)
+
+  onAfterDelete: async (result) ->
+    return q.resolve(result)
+
+  delete: async (id) ->
+    result = await @model.findOne(_id: id, deleted_at: $exists: no)
+    throw new errors.NotFoundError() unless result
+    instanceToDelete = await @onBeforeDelete(result)
+    instanceToDelete.deleted_at = Date.now()
+    await instanceToDelete.save()
+    return await @onAfterDelete(instanceToDelete)
 
 module.exports = EntityController
