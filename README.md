@@ -40,6 +40,7 @@ body = {url: "http://www.google.com"}
 `GET /api/1.0/jobs/:id`
 
 ### Roadmap
+- dependency injection
 - unit testing
 - better error handling (large files)
 - error recovery
