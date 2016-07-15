@@ -13,8 +13,9 @@ It also requires a Mongo database to store the job documents.
 
 *** To change the configuration to use your own Redis and Mongo servers ADD a settings file `config.json` in the root folder.
 
-development or production are taken from process.env.NODE_ENV (`private/lib/config.coffee`)
-`
+development | production => process.env.NODE_ENV (`private/lib/config.coffee`)
+
+```
 {
   "development": {
     "PORT": 3001,
@@ -28,7 +29,8 @@ development or production are taken from process.env.NODE_ENV (`private/lib/conf
     }
   },
   "production": {}
-}`
+}
+```
 
 ### RESTful API
 `POST /api/1.0/jobs`
