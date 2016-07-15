@@ -1,3 +1,6 @@
 node_modules/
 .idea
 log/
+dump.rdb
+npm-debug.log
+config.json

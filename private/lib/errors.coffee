@@ -5,6 +5,7 @@ class ExternalError extends Error
     Error.captureStackTrace(@, arguments.callee)
     @details = details if details
     @status = code or 500
+    @statusCode = code or 500
 
 class InternalServerError extends ExternalError
   constructor: (details, err) ->

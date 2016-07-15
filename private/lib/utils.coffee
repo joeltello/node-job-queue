@@ -1,7 +1,7 @@
 _ = require("lodash")
 mongoose = require("mongoose")
 errors = require("./errors")
-shortid = require('shortid')
+uuid = require('uuid')
 
 getModelFromEntityId = (id) ->
   dashPos = id?.indexOf("-")
@@ -17,7 +17,7 @@ findById = (id, lean = no) ->
   return getModelFromEntityId(id).findOne(_id: id).where("deleted_at").exists(no).lean(lean)
 
 generateId = ->
-  shortid.generate()
+  uuid.v4()
 
 module.exports =
   findById: findById

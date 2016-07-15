@@ -78,6 +78,8 @@ class ControllerManager
           delete data.status_code
         if data?.redirect?.url
           @res.redirect(data.redirect.url)
+        else if typeof data is "string"
+          @res.send(data)
         else if data instanceof Buffer
           @res.send(data)
         else
