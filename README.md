@@ -9,7 +9,7 @@ PORT: 6379
 
 HOST: 127.0.0.1
 
-It also requires a Mongo database to store the job documents.
+#### It also requires a Mongo database to store the job documents.
 
 *** To change the configuration to use your own Redis and Mongo servers ADD a settings file `config.json` in the root folder.
 
