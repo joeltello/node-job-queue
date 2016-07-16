@@ -11,7 +11,9 @@ HOST: 127.0.0.1
 
 #### It also requires a Mongo database to store the job documents.
 
-*** To change the configuration to use your own Redis and Mongo servers ADD a settings file `config.json` in the root folder.
+### Configuration
+
+To change the configuration to use your own Redis and Mongo servers ADD a settings file `config.json` in the root folder.
 
 development | production => process.env.NODE_ENV (`private/lib/config.coffee`)
 
@@ -21,7 +23,7 @@ development | production => process.env.NODE_ENV (`private/lib/config.coffee`)
     "PORT": 3001,
     "CLUSTER_ENABLED": true,
     "CLUSTER_WORKERS": 2,
-    "MONGO_URL": "", // MongoDB connection
+    "MONGO_URL": "mongodb://<user>:<password>@server.com:port/db-name", // MongoDB connection
     "PARALLEL_JOBS": 100,
     "REDIS": {
       "HOST": "127.0.0.1", // Redis Host
