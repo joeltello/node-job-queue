@@ -18,7 +18,7 @@ class KueService
     constructor: ->
       # TODO pass redis config as parameters
       redisConfig = config.REDIS unless _.isEmpty(config.REDIS)
-      # it will default to 127.0.0.1:6379
+      # it will default to 127.0.0.1:6379 if redisConfig is empty
       queue = kue.createQueue(redis: redisConfig)
       startQueue()
       return queue
@@ -62,11 +62,7 @@ class KueService
           queue.failed(reattemptJobs) if total > 0
       , 60000 # every minute
 
-  ###
-    Static method
-    Get the singleton instance
-    @return {queue}
-  ###
+  # Static method - Get the singleton instance
   @getQueue: ->
     queue ?= new Queue()
     return queue

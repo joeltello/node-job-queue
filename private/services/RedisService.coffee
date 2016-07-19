@@ -15,7 +15,7 @@ class RedisService
   constructor: ->
     # TODO pass redis config as parameters
     redisConfig = config.REDIS unless _.isEmpty(config.REDIS)
-    # it will default to 127.0.0.1:6379
+    # it will default to 127.0.0.1:6379 if redisConfig is empty
     client = redis.createClient(redisConfig)
     if password
       client.auth password, (err) ->

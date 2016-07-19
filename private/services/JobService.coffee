@@ -17,7 +17,7 @@ class JobService
   # private methods
   jobProcessor = (job, done) ->
     job = job.data
-    # TODO change to streams
+    # TODO change to streams (issue with large files)
     request job.url, async (err, response, body) ->
       if err
         done(err)
