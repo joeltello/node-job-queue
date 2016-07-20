@@ -53,7 +53,7 @@ startup.setupDB config.MONGO_URL, (err) ->
       message: err.message
       error: {}
 
-  # Globar error handler
+  # Global error handler
   process.on 'uncaughtException', (err) ->
     console.error "Uncaught exception:", err
     process.exit(1) if err.message is "listen EADDRINUSE"

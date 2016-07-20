@@ -13,7 +13,7 @@ module.exports = (EntitySchema) ->
       index: yes
 
   # Async version of pre-save. Must call done()
-  EntitySchema.pre 'save', yes, (next, done)->
+  EntitySchema.pre 'save', yes, (next, done) ->
     next()
     @updated_at = Date.now()
     done()

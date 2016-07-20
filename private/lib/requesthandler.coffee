@@ -7,7 +7,7 @@ guard = require("./guard")
 utils = require("./utils")
 errors = require("./errors")
 
-class ControllerManager
+class RequestHandler
 
   controllers = {}
 
@@ -20,7 +20,7 @@ class ControllerManager
         try
           controllers[controllerName.toLowerCase()] = require(path.join(controllersRoot, controllerName))
         catch err
-          console.error "ControllerManager::createController(#{controllerName}) - error:", err
+          console.error "RequestHandler::createController(#{controllerName}) - error:", err
 
   # Static method to load a manager
   createController = (controllerName) ->
@@ -34,7 +34,7 @@ class ControllerManager
     controllerName = controllerName + "controller"
     ControllerType = controllers[controllerName]
     if not ControllerType
-      console.error "ControllerManager::createController(#{controllerName}) - controller not found,"
+      console.error "RequestHandler::createController(#{controllerName}) - controller not found,"
       throw new errors.InvalidParameterError("Specified action is not supported.")
     return new ControllerType()
 
@@ -109,4 +109,4 @@ class ControllerManager
   search: (query)->
     @action("search", query)
 
-module.exports = ControllerManager
+module.exports = RequestHandler
